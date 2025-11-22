@@ -102,14 +102,14 @@
         
         <!-- Header -->
         <header class="h-16 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 backdrop-blur-md z-20">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 min-w-0">
                 <button onclick="toggleSidebar()" class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg md:hidden">
                     <span class="material-symbols-rounded">menu</span>
                 </button>
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 flex-shrink-0">
                     <span class="material-symbols-rounded text-white text-xl">sparkles</span>
                 </div>
-                <h1 class="text-lg font-semibold tracking-tight text-slate-800 dark:text-white">Nova AI</h1>
+                <h1 class="text-base sm:text-lg font-semibold tracking-tight text-slate-800 dark:text-white truncate">Nova AI</h1>
             </div>
             <div class="flex gap-2">
                 <button onclick="toggleTheme()" class="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
@@ -122,29 +122,29 @@
         </header>
 
         <!-- Chat Area -->
-        <main id="chat-container" class="flex-1 overflow-y-auto pt-6 pb-32 px-4 scroll-smooth">
-            <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto p-6">
-                <div class="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 shadow-xl">
-                    <span class="material-symbols-rounded text-indigo-500 text-5xl">smart_toy</span>
+        <main id="chat-container" class="flex-1 overflow-y-auto pt-6 pb-32 px-4 md:px-6 scroll-smooth">
+            <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto p-4 md:p-6">
+                <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 shadow-xl">
+                    <span class="material-symbols-rounded text-indigo-500 text-4xl md:text-5xl">smart_toy</span>
                 </div>
-                <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-3">How can I help?</h2>
-                <p class="text-slate-500 dark:text-slate-400 mb-10">I can process images, write code, and assist with creative tasks.</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-3">How can I help?</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-10 text-sm md:text-base">I can process images, write code, and assist with creative tasks.</p>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
                     <button onclick="setPrompt('Write a Python script to visualize data')" class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-indigo-500 dark:hover:border-indigo-500 transition-all group shadow-sm">
                         <span class="material-symbols-rounded text-indigo-500 mb-2">code</span>
-                        <p class="font-medium text-slate-700 dark:text-slate-200 text-sm">Write a Python script</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200 text-xs sm:text-sm">Write a Python script</p>
                     </button>
                     <button onclick="setPrompt('Explain quantum computing simply')" class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-purple-500 dark:hover:border-purple-500 transition-all group shadow-sm">
                         <span class="material-symbols-rounded text-purple-500 mb-2">school</span>
-                        <p class="font-medium text-slate-700 dark:text-slate-200 text-sm">Explain quantum computing</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200 text-xs sm:text-sm">Explain quantum computing</p>
                     </button>
                 </div>
             </div>
             
-            <div id="messages-list" class="max-w-3xl mx-auto space-y-6 hidden"></div>
+            <div id="messages-list" class="max-w-4xl mx-auto space-y-6 hidden"></div>
             
-            <div id="typing-indicator" class="max-w-3xl mx-auto mt-6 hidden">
+            <div id="typing-indicator" class="max-w-4xl mx-auto mt-6 hidden">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
                         <span class="material-symbols-rounded text-white text-sm">auto_awesome</span>
@@ -159,8 +159,8 @@
         </main>
 
         <!-- Input Area -->
-        <footer class="absolute bottom-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 p-4 z-20">
-            <div class="max-w-3xl mx-auto relative">
+        <footer class="absolute bottom-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 p-2 md:p-4 z-20">
+            <div class="max-w-4xl mx-auto relative">
                 <div id="image-preview" class="hidden absolute -top-24 left-0 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-xl">
                     <div class="relative group">
                         <img id="preview-img" src="" class="h-20 w-auto rounded-md object-cover">
@@ -170,13 +170,13 @@
                     </div>
                 </div>
 
-                <div class="flex items-end gap-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 rounded-2xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/30 transition-all shadow-sm">
+                <div class="flex items-end gap-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/30 transition-all shadow-sm">
                     <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                    <button onclick="document.getElementById('image-upload').click()" class="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors flex-shrink-0 mb-0.5">
+                    <button onclick="document.getElementById('image-upload').click()" class="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0 mb-0.5">
                         <span class="material-symbols-rounded">add_photo_alternate</span>
                     </button>
-                    <textarea id="user-input" rows="1" class="w-full bg-transparent text-slate-800 dark:text-slate-200 placeholder-slate-500 focus:outline-none resize-none py-3 px-1 max-h-32" placeholder="Ask Nova anything..." oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
-                    <button id="send-btn" onclick="sendMessage()" class="p-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex-shrink-0 disabled:opacity-50 mb-0.5">
+                    <textarea id="user-input" rows="1" class="w-full bg-transparent text-slate-800 dark:text-slate-200 placeholder-slate-500 focus:outline-none resize-none py-2.5 px-1 text-sm md:text-base max-h-32" placeholder="Ask Nova anything..." oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
+                    <button id="send-btn" onclick="sendMessage()" class="p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-lg shadow-indigo-500/20 flex-shrink-0 disabled:opacity-50 mb-0.5">
                         <span class="material-symbols-rounded">arrow_upward</span>
                     </button>
                 </div>
@@ -185,11 +185,11 @@
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="settings-content">
+    <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity duration-300 p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="settings-content">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-slate-800 dark:text-white">Settings</h3>
-                <button onclick="toggleSettings()" class="text-slate-500 hover:text-slate-800 dark:hover:text-white">
+                <h3 class="text-lg md:text-xl font-semibold text-slate-800 dark:text-white">Settings</h3>
+                <button onclick="toggleSettings()" class="text-slate-500 hover:text-slate-800 dark:hover:text-white -mr-2">
                     <span class="material-symbols-rounded">close</span>
                 </button>
             </div>
@@ -596,9 +596,9 @@
             if (role === 'user') {
                 div.innerHTML = `
                     <div class="flex justify-end gap-3">
-                        <div class="flex flex-col items-end max-w-[85%] md:max-w-[75%]">
+                        <div class="flex flex-col items-end max-w-[90%] sm:max-w-[80%]">
                             ${image ? `<img src="${image}" class="h-32 rounded-lg mb-2 border border-slate-200 dark:border-slate-700 object-cover">` : ''}
-                            <div class="bg-indigo-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-none shadow-md text-sm md:text-base leading-relaxed">
+                            <div class="bg-indigo-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-none shadow-md text-sm sm:text-base leading-relaxed">
                                 ${text.replace(/\n/g, '<br>')}
                             </div>
                         </div>
@@ -612,7 +612,7 @@
                             <span class="material-symbols-rounded text-white text-sm">auto_awesome</span>
                         </div>
                         <div class="flex-1 min-w-0 overflow-hidden">
-                            <div class="prose dark:prose-invert max-w-none text-sm md:text-base">
+                            <div class="prose dark:prose-invert max-w-none text-sm sm:text-base">
                                 ${parsedMarkdown}
                             </div>
                         </div>
