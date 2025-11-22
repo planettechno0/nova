@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,595 +7,176 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { slate: { 850: '#1e293b' } } } }
+        }
+    </script>
     
-    <!-- Marked.js for Markdown rendering -->
+    <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-    <!-- Highlight.js for code syntax highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    
-    <!-- Google Material Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-
-    <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Slate 900 */
-            color: #e2e8f0; /* Slate 200 */
-        }
-
-        /* Scrollbar Customization */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569; 
-        }
-
-        /* Markdown Styles */
-        .prose p { margin-bottom: 0.75em; line-height: 1.6; }
-        .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.75em; }
-        .prose ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 0.75em; }
-        .prose h1, .prose h2, .prose h3 { color: #f8fafc; font-weight: 600; margin-top: 1em; margin-bottom: 0.5em; }
-        .prose code { background-color: #1e293b; padding: 0.2em 0.4em; border-radius: 0.25em; font-family: monospace; font-size: 0.9em; color: #e2e8f0; }
-        .prose pre { background-color: #1e293b; padding: 1em; border-radius: 0.5em; overflow-x: auto; margin-bottom: 1em; border: 1px solid #334155; }
-        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
-        .prose blockquote { border-left: 4px solid #6366f1; padding-left: 1em; color: #94a3b8; font-style: italic; }
-        .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
-        .prose th, .prose td { border: 1px solid #334155; padding: 0.5em; text-align: left; }
-        .prose th { background-color: #1e293b; }
-        .prose a { color: #6366f1; text-decoration: underline; }
-
-        /* Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .message-enter {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        
-        .typing-dot {
-            animation: typing 1.4s infinite ease-in-out both;
-        }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        
-        @keyframes typing {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex overflow-hidden bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-inter transition-colors duration-300">
 
-    <!-- Top Navigation -->
-    <header class="h-16 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between px-4 md:px-6 backdrop-blur-md fixed w-full top-0 z-20">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <span class="material-symbols-rounded text-white text-xl">sparkles</span>
+    <!-- Sidebar (History) -->
+    <aside id="sidebar" class="w-64 bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex-col hidden md:flex transition-all z-30 absolute md:relative h-full">
+        <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <h2 class="font-semibold text-slate-700 dark:text-slate-200">History</h2>
+            <button onclick="toggleSidebar()" class="md:hidden p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded">
+                <span class="material-symbols-rounded">close</span>
+            </button>
+        </div>
+        <div class="p-3">
+            <button onclick="startNewChat()" class="w-full flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+                <span class="material-symbols-rounded">add</span>
+                <span class="font-medium text-sm">New Chat</span>
+            </button>
+        </div>
+        <div id="history-list" class="flex-1 overflow-y-auto p-3 space-y-2">
+            <!-- History items injected here -->
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-full relative">
+        
+        <!-- Header -->
+        <header class="h-16 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 backdrop-blur-md z-20">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg md:hidden">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <span class="material-symbols-rounded text-white text-xl">sparkles</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-semibold tracking-tight text-slate-800 dark:text-white">Nova AI</h1>
+                </div>
             </div>
-            <h1 class="text-lg font-semibold tracking-tight text-white">Nova AI</h1>
-            <span id="current-model-badge" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Gemini 2.5 Flash</span>
-        </div>
-        <div class="flex gap-2">
-            <button onclick="toggleSettings()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors" title="Settings">
-                <span class="material-symbols-rounded">settings</span>
-            </button>
-             <button onclick="clearChat()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors" title="Clear Conversation">
-                <span class="material-symbols-rounded">delete</span>
-            </button>
-        </div>
-    </header>
+            <div class="flex gap-2">
+                <button onclick="toggleTheme()" class="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Toggle Theme">
+                    <span class="material-symbols-rounded" id="theme-icon">light_mode</span>
+                </button>
+                <button onclick="toggleSettings()" class="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Settings">
+                    <span class="material-symbols-rounded">settings</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Chat Area -->
+        <main id="chat-container" class="flex-1 overflow-y-auto pt-6 pb-32 px-4 scroll-smooth">
+            <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto p-6">
+                <div class="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 shadow-xl">
+                    <span class="material-symbols-rounded text-indigo-500 text-5xl">smart_toy</span>
+                </div>
+                <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-3">How can I help?</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-10">I can process images, write code, and assist with creative tasks.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left">
+                    <button onclick="setPrompt('Write a Python script to visualize data')" class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-indigo-500 dark:hover:border-indigo-500 transition-all group shadow-sm">
+                        <span class="material-symbols-rounded text-indigo-500 mb-2">code</span>
+                        <p class="font-medium text-slate-700 dark:text-slate-200 text-sm">Write a Python script</p>
+                    </button>
+                    <button onclick="setPrompt('Explain quantum computing simply')" class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-purple-500 dark:hover:border-purple-500 transition-all group shadow-sm">
+                        <span class="material-symbols-rounded text-purple-500 mb-2">school</span>
+                        <p class="font-medium text-slate-700 dark:text-slate-200 text-sm">Explain quantum computing</p>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="messages-list" class="max-w-3xl mx-auto space-y-6 hidden"></div>
+            
+            <div id="typing-indicator" class="max-w-3xl mx-auto mt-6 hidden">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
+                        <span class="material-symbols-rounded text-white text-sm">auto_awesome</span>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1 w-16 h-10 shadow-sm">
+                        <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Input Area -->
+        <footer class="absolute bottom-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 p-4 z-20">
+            <div class="max-w-3xl mx-auto relative">
+                <div id="image-preview" class="hidden absolute -top-24 left-0 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-xl">
+                    <div class="relative group">
+                        <img id="preview-img" src="" class="h-20 w-auto rounded-md object-cover">
+                        <button onclick="removeImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 shadow-md">
+                            <span class="material-symbols-rounded text-sm">close</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-end gap-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 rounded-2xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/30 transition-all shadow-sm">
+                    <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                    <button onclick="document.getElementById('image-upload').click()" class="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors flex-shrink-0 mb-0.5">
+                        <span class="material-symbols-rounded">add_photo_alternate</span>
+                    </button>
+                    <textarea id="user-input" rows="1" class="w-full bg-transparent text-slate-800 dark:text-slate-200 placeholder-slate-500 focus:outline-none resize-none py-3 px-1 max-h-32" placeholder="Ask Nova anything..." oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
+                    <button id="send-btn" onclick="sendMessage()" class="p-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex-shrink-0 disabled:opacity-50 mb-0.5">
+                        <span class="material-symbols-rounded">arrow_upward</span>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="settings-content">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="settings-content">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-white">Settings</h3>
-                <button onclick="toggleSettings()" class="text-slate-400 hover:text-white transition-colors">
+                <h3 class="text-xl font-semibold text-slate-800 dark:text-white">Settings</h3>
+                <button onclick="toggleSettings()" class="text-slate-500 hover:text-slate-800 dark:hover:text-white">
                     <span class="material-symbols-rounded">close</span>
                 </button>
             </div>
-            
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">API Key</label>
-                    <input type="password" id="api-key-input" placeholder="Enter your Gemini API Key" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-slate-500">
-                    <p class="text-xs text-slate-500 mt-1">Your key is stored locally in your browser.</p>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">API Key</label>
+                    <input type="password" id="api-key-input" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Model</label>
-                    <div class="relative">
-                        <select id="model-select" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500 appearance-none cursor-pointer">
-                            <!-- Stable and supported models for generateContent -->
-                            <optgroup label="Gemini 2.5 (Recommended)">
-                                <option value="gemini-2.5-flash-preview-09-2025">Gemini 2.5 Flash Preview (Fastest)</option>
-                                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Best Reasoning)</option>
-                            </optgroup>
-                            
-                            <!-- Gemini 1.5 Series (Stable) -->
-                            <optgroup label="Gemini 1.5 (Stable)">
-                                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                            </optgroup>
-                        </select>
-                        <span class="absolute right-3 top-2.5 text-slate-400 pointer-events-none">
-                            <span class="material-symbols-rounded">expand_more</span>
-                        </span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-2 italic">* Experimental or unsupported models removed for stability.</p>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">System Instructions</label>
+                    <textarea id="system-instruction-input" rows="3" placeholder="e.g., You are a helpful coding assistant." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 text-sm"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Model</label>
+                    <select id="model-select" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast)</option>
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Smart)</option>
+                        <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
+                    </select>
                 </div>
             </div>
-
             <div class="mt-8 flex justify-end gap-3">
-                <button onclick="toggleSettings()" class="px-4 py-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors text-sm font-medium">Cancel</button>
-                <button onclick="saveSettings()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors shadow-lg shadow-indigo-500/20 text-sm font-medium">Save Changes</button>
+                <button onclick="toggleSettings()" class="px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-sm">Cancel</button>
+                <button onclick="saveSettings()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm">Save Changes</button>
             </div>
         </div>
     </div>
 
-    <!-- Main Chat Area -->
-    <main id="chat-container" class="flex-1 overflow-y-auto pt-20 pb-32 px-4 scroll-smooth">
-        <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto p-6">
-            <div class="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center mb-6 shadow-xl border border-slate-700">
-                <span class="material-symbols-rounded text-indigo-400 text-4xl">smart_toy</span>
-            </div>
-            <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">How can I help you today?</h2>
-            <p class="text-slate-400 mb-8">I'm powered by Google's Gemini 2.5 Flash model. I can analyze images, write code, and help with creative tasks.</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left">
-                <button onclick="setPrompt('Write a Python script to scrape a website')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl transition-all hover:scale-[1.02] group">
-                    <span class="material-symbols-rounded text-indigo-400 mb-2 group-hover:text-indigo-300">code</span>
-                    <p class="font-medium text-slate-200 text-sm">Write a Python script</p>
-                    <p class="text-slate-500 text-xs">to scrape a website</p>
-                </button>
-                <button onclick="setPrompt('Explain quantum computing in simple terms')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl transition-all hover:scale-[1.02] group">
-                    <span class="material-symbols-rounded text-purple-400 mb-2 group-hover:text-purple-300">school</span>
-                    <p class="font-medium text-slate-200 text-sm">Explain quantum computing</p>
-                    <p class="text-slate-500 text-xs">in simple terms</p>
-                </button>
-                <button onclick="setPrompt('Create a 3-day travel itinerary for Tokyo')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl transition-all hover:scale-[1.02] group">
-                    <span class="material-symbols-rounded text-emerald-400 mb-2 group-hover:text-emerald-300">flight</span>
-                    <p class="font-medium text-slate-200 text-sm">Plan a trip</p>
-                    <p class="text-slate-500 text-xs">3-day itinerary for Tokyo</p>
-                </button>
-                <button onclick="setPrompt('Debug this JavaScript code: console.log(x)')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl transition-all hover:scale-[1.02] group">
-                    <span class="material-symbols-rounded text-amber-400 mb-2 group-hover:text-amber-300">bug_report</span>
-                    <p class="font-medium text-slate-200 text-sm">Debug code</p>
-                    <p class="text-slate-500 text-xs">Find errors in my JS</p>
-                </button>
-            </div>
-        </div>
-        
-        <!-- Messages will be injected here -->
-        <div id="messages-list" class="max-w-3xl mx-auto space-y-6 hidden"></div>
-        
-        <!-- Typing Indicator -->
-        <div id="typing-indicator" class="max-w-3xl mx-auto mt-4 hidden">
-            <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span class="material-symbols-rounded text-white text-sm">auto_awesome</span>
-                </div>
-                <div class="bg-slate-800 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1 w-16 h-10">
-                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
-                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
-                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
-                </div>
-            </div>
-        </div>
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg hidden items-center gap-2 z-50">
+        <span class="material-symbols-rounded text-sm" id="toast-icon">error</span>
+        <span id="toast-message" class="text-sm">Error</span>
+    </div>
 
-        <!-- Error Toast -->
-        <div id="error-toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-red-500/90 text-white px-4 py-2 rounded-lg shadow-lg backdrop-blur-sm hidden items-center gap-2 z-50">
-            <span class="material-symbols-rounded text-sm">error</span>
-            <span id="error-message" class="text-sm">Something went wrong</span>
-        </div>
-    </main>
-
-    <!-- Input Area -->
-    <footer class="fixed bottom-0 w-full bg-slate-900/80 backdrop-blur-xl border-t border-slate-800 p-4 z-20">
-        <div class="max-w-3xl mx-auto relative">
-            
-            <!-- Image Preview -->
-            <div id="image-preview" class="hidden absolute -top-24 left-0 bg-slate-800 p-2 rounded-lg border border-slate-700 shadow-xl">
-                <div class="relative">
-                    <img id="preview-img" src="" class="h-20 w-auto rounded-md object-cover">
-                    <button onclick="removeImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 shadow-md">
-                        <span class="material-symbols-rounded text-sm">close</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex items-end gap-2 bg-slate-800/50 border border-slate-700 p-2 rounded-xl focus-within:border-indigo-500/50 focus-within:bg-slate-800 transition-all shadow-lg shadow-black/20">
-                
-                <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                <button onclick="document.getElementById('image-upload').click()" class="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-700/50 rounded-lg transition-colors flex-shrink-0" title="Upload Image">
-                    <span class="material-symbols-rounded">add_photo_alternate</span>
-                </button>
-
-                <textarea id="user-input" rows="1" class="w-full bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none resize-none py-2 max-h-32" placeholder="Message Nova..." oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
-                
-                <button id="send-btn" onclick="sendMessage()" class="p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors shadow-lg shadow-indigo-500/20 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span class="material-symbols-rounded">arrow_upward</span>
-                </button>
-            </div>
-            <div class="text-center mt-2">
-                <p class="text-[10px] text-slate-500">Nova can make mistakes. Consider checking important information.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // --- Configuration ---
-        // Global default if not provided by environment
-        const DEFAULT_API_KEY = ""; 
-        
-        // --- State ---
-        let chatHistory = []; // Stores the conversation history
-        let currentImageData = null; // Stores base64 image string if attached
-        let isGenerating = false;
-        let userApiKey = localStorage.getItem('nova_api_key') || DEFAULT_API_KEY;
-        let selectedModel = localStorage.getItem('nova_model') || "gemini-2.5-flash-preview-09-2025";
-
-        // --- Initialization ---
-        marked.setOptions({
-            highlight: function(code, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    return hljs.highlight(code, { language: lang }).value;
-                }
-                return hljs.highlightAuto(code).value;
-            },
-            breaks: true
-        });
-
-        // Load settings into UI on startup
-        document.addEventListener('DOMContentLoaded', () => {
-            const apiKeyInput = document.getElementById('api-key-input');
-            const modelSelect = document.getElementById('model-select');
-            const badge = document.getElementById('current-model-badge');
-            
-            if(userApiKey) apiKeyInput.value = userApiKey;
-            if(selectedModel) {
-                modelSelect.value = selectedModel;
-                updateModelBadge(selectedModel);
-            }
-        });
-
-        // --- DOM Elements ---
-        const chatContainer = document.getElementById('chat-container');
-        const messagesList = document.getElementById('messages-list');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const typingIndicator = document.getElementById('typing-indicator');
-        const imagePreview = document.getElementById('image-preview');
-        const previewImg = document.getElementById('preview-img');
-        const errorToast = document.getElementById('error-toast');
-        const errorMessage = document.getElementById('error-message');
-        const settingsModal = document.getElementById('settings-modal');
-        const settingsContent = document.getElementById('settings-content');
-
-        // --- Functions ---
-
-        function updateModelBadge(modelVal) {
-            const badge = document.getElementById('current-model-badge');
-            // Clean up model name for display
-            let displayName = modelVal.replace('gemini-', '').replace('-preview', '').replace('-09-2025', '').replace('-exp', '');
-            displayName = displayName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-            badge.innerText = `Gemini ${displayName}`;
-        }
-
-        function toggleSettings() {
-            const isHidden = settingsModal.classList.contains('hidden');
-            if (isHidden) {
-                settingsModal.classList.remove('hidden');
-                // Small delay for animation
-                requestAnimationFrame(() => {
-                    settingsModal.classList.remove('opacity-0');
-                    settingsContent.classList.remove('scale-95');
-                    settingsContent.classList.add('scale-100');
-                });
-            } else {
-                settingsModal.classList.add('opacity-0');
-                settingsContent.classList.remove('scale-100');
-                settingsContent.classList.add('scale-95');
-                setTimeout(() => {
-                    settingsModal.classList.add('hidden');
-                }, 300);
-            }
-        }
-
-        function saveSettings() {
-            const newKey = document.getElementById('api-key-input').value.trim();
-            const newModel = document.getElementById('model-select').value;
-
-            if (newKey) {
-                localStorage.setItem('nova_api_key', newKey);
-                userApiKey = newKey;
-            }
-            
-            localStorage.setItem('nova_model', newModel);
-            selectedModel = newModel;
-            
-            updateModelBadge(newModel);
-            toggleSettings();
-            showError("Settings saved!"); // Re-using error toast for success briefly
-            document.getElementById('error-toast').classList.remove('bg-red-500/90');
-            document.getElementById('error-toast').classList.add('bg-emerald-500/90');
-            document.getElementById('error-toast').querySelector('span').innerText = 'check_circle';
-            
-            setTimeout(() => {
-                document.getElementById('error-toast').classList.add('bg-red-500/90');
-                document.getElementById('error-toast').classList.remove('bg-emerald-500/90');
-                document.getElementById('error-toast').querySelector('span').innerText = 'error';
-            }, 2000);
-        }
-
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = textarea.scrollHeight + 'px';
-        }
-
-        function handleKeyDown(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        }
-
-        function setPrompt(text) {
-            userInput.value = text;
-            autoResize(userInput);
-            userInput.focus();
-        }
-
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (file.size > 5 * 1024 * 1024) {
-                showError("Image too large. Please upload under 5MB.");
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onloadend = function() {
-                currentImageData = reader.result;
-                previewImg.src = currentImageData;
-                imagePreview.classList.remove('hidden');
-            }
-            reader.readAsDataURL(file);
-            event.target.value = ''; 
-        }
-
-        function removeImage() {
-            currentImageData = null;
-            imagePreview.classList.add('hidden');
-            previewImg.src = '';
-        }
-
-        function showError(msg) {
-            errorMessage.innerText = msg;
-            errorToast.classList.remove('hidden');
-            errorToast.classList.add('flex');
-            setTimeout(() => {
-                errorToast.classList.add('hidden');
-                errorToast.classList.remove('flex');
-            }, 4000);
-        }
-
-        function clearChat() {
-            chatHistory = [];
-            messagesList.innerHTML = '';
-            messagesList.classList.add('hidden');
-            welcomeScreen.classList.remove('hidden');
-            removeImage();
-        }
-
-        function appendMessage(role, text, image = null) {
-            welcomeScreen.classList.add('hidden');
-            messagesList.classList.remove('hidden');
-
-            const div = document.createElement('div');
-            div.className = "message-enter w-full";
-            
-            let contentHtml = '';
-
-            if (role === 'user') {
-                div.innerHTML = `
-                    <div class="flex justify-end gap-3">
-                        <div class="flex flex-col items-end max-w-[85%] md:max-w-[75%]">
-                            ${image ? `<img src="${image}" class="h-32 rounded-lg mb-2 border border-slate-700 object-cover">` : ''}
-                            <div class="bg-indigo-600 text-white px-4 py-3 rounded-2xl rounded-tr-none shadow-md text-sm md:text-base">
-                                ${text.replace(/\n/g, '<br>')}
-                            </div>
-                        </div>
-                        <div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0 mt-1 border border-indigo-500/30">
-                            <span class="material-symbols-rounded text-indigo-400 text-sm">person</span>
-                        </div>
-                    </div>
-                `;
-            } else {
-                // AI Message
-                const parsedMarkdown = marked.parse(text);
-                div.innerHTML = `
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-lg shadow-indigo-500/20">
-                            <span class="material-symbols-rounded text-white text-sm">auto_awesome</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="prose prose-invert max-w-none text-slate-200 text-sm md:text-base">
-                                ${parsedMarkdown}
-                            </div>
-                            <!-- Actions -->
-                            <div class="flex gap-2 mt-2 opacity-0 hover:opacity-100 transition-opacity">
-                                <button onclick="copyToClipboard(this)" class="text-xs text-slate-500 hover:text-white flex items-center gap-1">
-                                    <span class="material-symbols-rounded text-[14px]">content_copy</span> Copy
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            messagesList.appendChild(div);
-            scrollToBottom();
-            return div;
-        }
-
-        function scrollToBottom() {
-            chatContainer.scrollTo({
-                top: chatContainer.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
-
-        function copyToClipboard(btn) {
-            const text = btn.closest('.flex-1').querySelector('.prose').innerText;
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                const originalContent = btn.innerHTML;
-                btn.innerHTML = `<span class="material-symbols-rounded text-[14px]">check</span> Copied!`;
-                setTimeout(() => {
-                    btn.innerHTML = originalContent;
-                }, 2000);
-            } catch (err) {
-                showError('Failed to copy');
-            }
-            document.body.removeChild(textArea);
-        }
-
-        async function callGeminiAPI(payload) {
-            // Check if the user has provided a key or if a default key is available
-            const keyToUse = userApiKey || DEFAULT_API_KEY;
-            if (!keyToUse) {
-                // If no key is found, force user to settings
-                toggleSettings();
-                throw new Error("Please enter your API Key in Settings");
-            }
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${keyToUse}`;
-
-            const delays = [1000, 2000, 4000];
-            
-            for (let i = 0; i <= delays.length; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        if (response.status >= 500 || response.status === 429) {
-                            throw new Error(`Server error: ${response.status}`);
-                        }
-                        const errData = await response.json();
-                        throw new Error(errData.error?.message || 'API Error');
-                    }
-
-                    return await response.json();
-
-                } catch (error) {
-                    console.warn(`Attempt ${i + 1} failed:`, error);
-                    if (i < delays.length) {
-                        await new Promise(resolve => setTimeout(resolve, delays[i]));
-                    } else {
-                        throw error;
-                    }
-                }
-            }
-        }
-
-        async function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text && !currentImageData) return;
-            if (isGenerating) return;
-
-            userInput.value = '';
-            userInput.style.height = 'auto';
-            isGenerating = true;
-            sendBtn.disabled = true;
-            sendBtn.classList.add('opacity-50');
-
-            appendMessage('user', text, currentImageData);
-
-            const userParts = [{ text: text || " " }];
-            
-            if (currentImageData) {
-                const base64Data = currentImageData.split(',')[1];
-                const mimeType = currentImageData.substring(currentImageData.indexOf(':') + 1, currentImageData.indexOf(';'));
-                
-                userParts.push({
-                    inlineData: {
-                        mimeType: mimeType,
-                        data: base64Data
-                    }
-                });
-            }
-
-            const newHistoryItem = { role: "user", parts: userParts };
-            chatHistory.push(newHistoryItem);
-            removeImage();
-
-            typingIndicator.classList.remove('hidden');
-            scrollToBottom();
-
-            try {
-                const payload = {
-                    contents: chatHistory,
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 2048,
-                    }
-                };
-
-                const data = await callGeminiAPI(payload);
-                
-                typingIndicator.classList.add('hidden');
-                
-                const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if (aiText) {
-                    chatHistory.push({
-                        role: "model",
-                        parts: [{ text: aiText }]
-                    });
-                    
-                    appendMessage('model', aiText);
-                    hljs.highlightAll();
-                } else {
-                    throw new Error("No response text received");
-                }
-
-            } catch (error) {
-                typingIndicator.classList.add('hidden');
-                showError(error.message);
-                console.error(error);
-            } finally {
-                isGenerating = false;
-                sendBtn.disabled = false;
-                sendBtn.classList.remove('opacity-50');
-                userInput.focus();
-            }
-        }
-    </script>
+    <!-- Scripts -->
+    <script src="utils.js"></script>
+    <script src="api.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
