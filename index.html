@@ -18,11 +18,65 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- Icons & Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Base Styles */
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Markdown Prose Styling */
+        .prose p { margin-bottom: 0.75em; line-height: 1.6; }
+        .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.75em; }
+        .prose ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 0.75em; }
+        .prose h1, .prose h2, .prose h3 { font-weight: 600; margin-top: 1em; margin-bottom: 0.5em; color: #1e293b; }
+        .prose code { background-color: #f1f5f9; padding: 0.2em 0.4em; border-radius: 0.25em; font-family: monospace; font-size: 0.9em; color: #0f172a; }
+        .prose pre { background-color: #1e293b; padding: 1em; border-radius: 0.5em; overflow-x: auto; margin-bottom: 1em; position: relative; }
+        .prose pre code { background-color: transparent; padding: 0; color: #e2e8f0; }
+        .prose blockquote { border-left: 4px solid #6366f1; padding-left: 1em; color: #64748b; font-style: italic; }
+        .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+        .prose th, .prose td { border: 1px solid #cbd5e1; padding: 0.5em; text-align: left; }
+        .prose th { background-color: #f1f5f9; }
+        .prose a { color: #6366f1; text-decoration: underline; }
+        .prose strong { font-weight: 600; color: #0f172a; }
+
+        /* Dark Mode Prose Overrides */
+        .dark .prose h1, .dark .prose h2, .dark .prose h3 { color: #f8fafc; }
+        .dark .prose code { background-color: #1e293b; color: #e2e8f0; }
+        .dark .prose pre { border: 1px solid #334155; }
+        .dark .prose blockquote { color: #94a3b8; }
+        .dark .prose th, .dark .prose td { border-color: #334155; }
+        .dark .prose th { background-color: #1e293b; }
+        .dark .prose strong { color: #fff; }
+
+        /* Copy Button */
+        .copy-btn {
+            position: absolute; top: 0.5rem; right: 0.5rem;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #cbd5e1; padding: 0.25rem 0.5rem; border-radius: 0.25rem;
+            font-size: 0.75rem; cursor: pointer; transition: all 0.2s; opacity: 0;
+        }
+        .prose pre:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: rgba(255, 255, 255, 0.2); color: white; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message-enter { animation: fadeIn 0.3s ease-out forwards; }
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    </style>
 </head>
 <body class="h-screen flex overflow-hidden bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-inter transition-colors duration-300">
 
@@ -40,9 +94,7 @@
                 <span class="font-medium text-sm">New Chat</span>
             </button>
         </div>
-        <div id="history-list" class="flex-1 overflow-y-auto p-3 space-y-2">
-            <!-- History items injected here -->
-        </div>
+        <div id="history-list" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
     </aside>
 
     <!-- Main Content -->
@@ -57,15 +109,13 @@
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                     <span class="material-symbols-rounded text-white text-xl">sparkles</span>
                 </div>
-                <div>
-                    <h1 class="text-lg font-semibold tracking-tight text-slate-800 dark:text-white">Nova AI</h1>
-                </div>
+                <h1 class="text-lg font-semibold tracking-tight text-slate-800 dark:text-white">Nova AI</h1>
             </div>
             <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Toggle Theme">
+                <button onclick="toggleTheme()" class="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                     <span class="material-symbols-rounded" id="theme-icon">light_mode</span>
                 </button>
-                <button onclick="toggleSettings()" class="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Settings">
+                <button onclick="toggleSettings()" class="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                     <span class="material-symbols-rounded">settings</span>
                 </button>
             </div>
@@ -155,9 +205,9 @@
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Model</label>
                     <select id="model-select" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast)</option>
-                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Smart)</option>
-                        <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fastest)</option>
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Smartest)</option>
+                        <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8B (High Speed)</option>
                     </select>
                 </div>
             </div>
@@ -174,9 +224,503 @@
         <span id="toast-message" class="text-sm">Error</span>
     </div>
 
-    <!-- Scripts -->
-    <script src="utils.js"></script>
-    <script src="api.js"></script>
-    <script src="app.js"></script>
+    <script>
+        /* =========================================
+           1. UTILITIES & CONFIGURATION
+           ========================================= */
+
+        // --- Markdown & Highlight.js Setup ---
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true
+        });
+
+        // Custom renderer to add Copy buttons to code blocks
+        const renderer = new marked.Renderer();
+        renderer.code = function(code, language) {
+            const validLang = !!(language && hljs.getLanguage(language));
+            const highlighted = validLang 
+                ? hljs.highlight(code, { language }).value 
+                : hljs.highlightAuto(code).value;
+            
+            return `<pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code class="hljs ${language}">${highlighted}</code></pre>`;
+        };
+        marked.use({ renderer });
+
+        // --- Helper Functions ---
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function formatDate(timestamp) {
+            return new Date(timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function copyCode(btn) {
+            const pre = btn.parentElement;
+            const code = pre.querySelector('code').innerText;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                setTimeout(() => btn.innerText = originalText, 2000);
+            }).catch(err => console.error('Failed to copy:', err));
+        }
+
+        function showToast(message, type = 'error') {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toast-message');
+            const icon = document.getElementById('toast-icon');
+            
+            msg.innerText = message;
+            
+            if (type === 'success') {
+                toast.classList.remove('bg-red-500');
+                toast.classList.add('bg-emerald-600');
+                icon.innerText = 'check_circle';
+            } else {
+                toast.classList.remove('bg-emerald-600');
+                toast.classList.add('bg-red-500');
+                icon.innerText = 'error';
+            }
+            
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 3000);
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        /* =========================================
+           2. API HANDLING (STREAMING)
+           ========================================= */
+
+        async function streamGeminiResponse(apiKey, model, history, systemInstruction, onChunk, onComplete, onError) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: history,
+                generationConfig: {
+                    temperature: 0.7,
+                    maxOutputTokens: 4096,
+                }
+            };
+
+            if (systemInstruction) {
+                payload.systemInstruction = { parts: [{ text: systemInstruction }] };
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error?.message || `API Error: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullText = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    
+                    const lines = chunk.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const jsonStr = line.substring(6);
+                                const json = JSON.parse(jsonStr);
+                                const textChunk = json.candidates?.[0]?.content?.parts?.[0]?.text;
+                                
+                                if (textChunk) {
+                                    fullText += textChunk;
+                                    onChunk(fullText);
+                                }
+                            } catch (e) {
+                                // Ignore parsing errors for partial chunks
+                            }
+                        }
+                    }
+                }
+
+                onComplete(fullText);
+
+            } catch (error) {
+                console.error("Stream Error:", error);
+                onError(error.message);
+            }
+        }
+
+        /* =========================================
+           3. APPLICATION LOGIC
+           ========================================= */
+
+        // --- State ---
+        const DEFAULT_API_KEY = ""; 
+        let state = {
+            apiKey: localStorage.getItem('nova_api_key') || DEFAULT_API_KEY,
+            model: localStorage.getItem('nova_model') || "gemini-1.5-flash",
+            systemInstruction: localStorage.getItem('nova_sys_instruction') || "",
+            theme: localStorage.getItem('nova_theme') || "dark",
+            chats: JSON.parse(localStorage.getItem('nova_chats') || "[]"),
+            currentChatId: null,
+            isGenerating: false,
+            currentImage: null
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            app: document.documentElement,
+            chatContainer: document.getElementById('chat-container'),
+            messagesList: document.getElementById('messages-list'),
+            userInput: document.getElementById('user-input'),
+            sendBtn: document.getElementById('send-btn'),
+            welcomeScreen: document.getElementById('welcome-screen'),
+            typingIndicator: document.getElementById('typing-indicator'),
+            imagePreview: document.getElementById('image-preview'),
+            previewImg: document.getElementById('preview-img'),
+            settingsModal: document.getElementById('settings-modal'),
+            settingsContent: document.getElementById('settings-content'),
+            sidebar: document.getElementById('sidebar'),
+            historyList: document.getElementById('history-list'),
+            themeIcon: document.getElementById('theme-icon'),
+            apiKeyInput: document.getElementById('api-key-input'),
+            modelSelect: document.getElementById('model-select'),
+            sysInstructionInput: document.getElementById('system-instruction-input')
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme(state.theme);
+            renderHistorySidebar();
+            
+            // Load Settings
+            els.apiKeyInput.value = state.apiKey;
+            els.modelSelect.value = state.model;
+            els.sysInstructionInput.value = state.systemInstruction;
+
+            // Start new chat or load most recent
+            if (state.chats.length > 0) {
+                loadChat(state.chats[0].id);
+            } else {
+                startNewChat();
+            }
+        });
+
+        // --- Logic ---
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                els.app.classList.add('dark');
+                els.themeIcon.innerText = 'light_mode';
+            } else {
+                els.app.classList.remove('dark');
+                els.themeIcon.innerText = 'dark_mode';
+            }
+            localStorage.setItem('nova_theme', theme);
+            state.theme = theme;
+        }
+
+        function toggleTheme() {
+            applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+        }
+
+        function toggleSettings() {
+            const isHidden = els.settingsModal.classList.contains('hidden');
+            if (isHidden) {
+                els.settingsModal.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    els.settingsModal.classList.remove('opacity-0');
+                    els.settingsContent.classList.remove('scale-95');
+                    els.settingsContent.classList.add('scale-100');
+                });
+            } else {
+                els.settingsModal.classList.add('opacity-0');
+                els.settingsContent.classList.remove('scale-100');
+                els.settingsContent.classList.add('scale-95');
+                setTimeout(() => els.settingsModal.classList.add('hidden'), 300);
+            }
+        }
+
+        function saveSettings() {
+            state.apiKey = els.apiKeyInput.value.trim();
+            state.model = els.modelSelect.value;
+            state.systemInstruction = els.sysInstructionInput.value.trim();
+
+            localStorage.setItem('nova_api_key', state.apiKey);
+            localStorage.setItem('nova_model', state.model);
+            localStorage.setItem('nova_sys_instruction', state.systemInstruction);
+
+            toggleSettings();
+            showToast('Settings Saved', 'success');
+        }
+
+        function toggleSidebar() {
+            els.sidebar.classList.toggle('hidden');
+            els.sidebar.classList.toggle('absolute');
+            els.sidebar.classList.toggle('z-30');
+            els.sidebar.classList.toggle('h-full');
+        }
+
+        function startNewChat() {
+            state.currentChatId = generateId();
+            const newChat = {
+                id: state.currentChatId,
+                title: "New Conversation",
+                timestamp: Date.now(),
+                messages: []
+            };
+            state.chats.unshift(newChat);
+            saveChats();
+            renderHistorySidebar();
+            clearChatUI();
+            
+            if (window.innerWidth < 768) els.sidebar.classList.add('hidden');
+        }
+
+        function loadChat(id) {
+            const chat = state.chats.find(c => c.id === id);
+            if (!chat) return;
+
+            state.currentChatId = id;
+            clearChatUI();
+            
+            if (chat.messages.length > 0) {
+                els.welcomeScreen.classList.add('hidden');
+                els.messagesList.classList.remove('hidden');
+                chat.messages.forEach(msg => {
+                    appendMessageToUI(msg.role, msg.text, msg.image, false);
+                });
+                scrollToBottom();
+            }
+            
+            renderHistorySidebar();
+            if (window.innerWidth < 768) els.sidebar.classList.add('hidden');
+        }
+
+        function saveChats() {
+            localStorage.setItem('nova_chats', JSON.stringify(state.chats));
+        }
+
+        function renderHistorySidebar() {
+            els.historyList.innerHTML = '';
+            state.chats.forEach(chat => {
+                const btn = document.createElement('button');
+                const isActive = chat.id === state.currentChatId;
+                btn.className = `w-full text-left p-3 rounded-lg text-sm transition-colors flex flex-col gap-1 ${
+                    isActive 
+                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-medium' 
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`;
+                btn.onclick = () => loadChat(chat.id);
+                
+                btn.innerHTML = `
+                    <span class="truncate block">${chat.title}</span>
+                    <span class="text-xs opacity-60">${formatDate(chat.timestamp)}</span>
+                `;
+                els.historyList.appendChild(btn);
+            });
+        }
+
+        function clearChatUI() {
+            els.messagesList.innerHTML = '';
+            els.messagesList.classList.add('hidden');
+            els.welcomeScreen.classList.remove('hidden');
+            removeImage();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                showToast("Image too large (Max 5MB)");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                state.currentImage = reader.result;
+                els.previewImg.src = state.currentImage;
+                els.imagePreview.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+            event.target.value = ''; 
+        }
+
+        function removeImage() {
+            state.currentImage = null;
+            els.imagePreview.classList.add('hidden');
+            els.previewImg.src = '';
+        }
+
+        function setPrompt(text) {
+            els.userInput.value = text;
+            autoResize(els.userInput);
+            els.userInput.focus();
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function appendMessageToUI(role, text, image = null, animate = true) {
+            els.welcomeScreen.classList.add('hidden');
+            els.messagesList.classList.remove('hidden');
+
+            const div = document.createElement('div');
+            div.className = `w-full ${animate ? 'message-enter' : ''}`;
+            
+            if (role === 'user') {
+                div.innerHTML = `
+                    <div class="flex justify-end gap-3">
+                        <div class="flex flex-col items-end max-w-[85%] md:max-w-[75%]">
+                            ${image ? `<img src="${image}" class="h-32 rounded-lg mb-2 border border-slate-200 dark:border-slate-700 object-cover">` : ''}
+                            <div class="bg-indigo-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-none shadow-md text-sm md:text-base leading-relaxed">
+                                ${text.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const parsedMarkdown = marked.parse(text);
+                div.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-lg shadow-indigo-500/20">
+                            <span class="material-symbols-rounded text-white text-sm">auto_awesome</span>
+                        </div>
+                        <div class="flex-1 min-w-0 overflow-hidden">
+                            <div class="prose dark:prose-invert max-w-none text-sm md:text-base">
+                                ${parsedMarkdown}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            els.messagesList.appendChild(div);
+            return div;
+        }
+
+        function scrollToBottom() {
+            els.chatContainer.scrollTo({ top: els.chatContainer.scrollHeight, behavior: 'smooth' });
+        }
+
+        async function sendMessage() {
+            const text = els.userInput.value.trim();
+            if (!text && !state.currentImage) return;
+            if (state.isGenerating) return;
+
+            if (!state.apiKey) {
+                toggleSettings();
+                showToast("Please enter API Key");
+                return;
+            }
+
+            // UI Updates
+            els.userInput.value = '';
+            els.userInput.style.height = 'auto';
+            state.isGenerating = true;
+            els.sendBtn.disabled = true;
+            els.sendBtn.classList.add('opacity-50');
+
+            // 1. Add User Message
+            appendMessageToUI('user', text, state.currentImage);
+            
+            // 2. Update Data Model
+            const currentChat = state.chats.find(c => c.id === state.currentChatId);
+            
+            if (currentChat.messages.length === 0) {
+                currentChat.title = text.substring(0, 30) + (text.length > 30 ? '...' : '');
+                renderHistorySidebar();
+            }
+
+            const userMessageObj = { role: 'user', text: text, image: state.currentImage };
+            currentChat.messages.push(userMessageObj);
+            saveChats();
+
+            // 3. Prepare History
+            const apiHistory = currentChat.messages.map(msg => {
+                const parts = [{ text: msg.text }];
+                if (msg.image) {
+                    const base64Data = msg.image.split(',')[1];
+                    const mimeType = msg.image.substring(msg.image.indexOf(':') + 1, msg.image.indexOf(';'));
+                    parts.push({ inlineData: { mimeType, data: base64Data } });
+                }
+                return { role: msg.role === 'user' ? 'user' : 'model', parts };
+            });
+
+            removeImage();
+            els.typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+
+            // 4. Create Placeholder
+            const aiDiv = appendMessageToUI('model', '...');
+            const proseDiv = aiDiv.querySelector('.prose');
+            proseDiv.innerHTML = ''; 
+
+            // 5. Call API
+            await streamGeminiResponse(
+                state.apiKey,
+                state.model,
+                apiHistory,
+                state.systemInstruction,
+                (chunkText) => {
+                    els.typingIndicator.classList.add('hidden');
+                    proseDiv.innerHTML = marked.parse(chunkText);
+                    scrollToBottom();
+                },
+                (fullText) => {
+                    currentChat.messages.push({ role: 'model', text: fullText });
+                    saveChats();
+                    state.isGenerating = false;
+                    els.sendBtn.disabled = false;
+                    els.sendBtn.classList.remove('opacity-50');
+                    els.userInput.focus();
+                    hljs.highlightAll();
+                },
+                (errorMessage) => {
+                    els.typingIndicator.classList.add('hidden');
+                    
+                    // --- FIX FOR 404 ERROR ---
+                    if (errorMessage.includes('404')) {
+                        showToast("Model not found. Resetting to Gemini 1.5 Flash...");
+                        state.model = "gemini-1.5-flash";
+                        localStorage.setItem('nova_model', "gemini-1.5-flash");
+                        els.modelSelect.value = "gemini-1.5-flash";
+                    } else {
+                        showToast(errorMessage);
+                    }
+                    
+                    proseDiv.innerHTML += `<br><span class="text-red-500 font-medium text-sm">[Error: ${errorMessage}. Please try again.]</span>`;
+                    state.isGenerating = false;
+                    els.sendBtn.disabled = false;
+                    els.sendBtn.classList.remove('opacity-50');
+                }
+            );
+        }
+    </script>
 </body>
 </html>
